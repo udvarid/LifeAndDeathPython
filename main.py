@@ -1,4 +1,6 @@
 import tkinter as tk
+from random import randint
+from time import sleep
 
 
 def frame_all():
@@ -70,29 +72,80 @@ def frame_grid():
     window.mainloop()
 
 
+def button_example():
+    def increase():
+        value = int(lbl_value["text"])
+        lbl_value["text"] = f"{value + 1}"
+
+    def decrease():
+        value = int(lbl_value["text"])
+        lbl_value["text"] = f"{value - 1}"
+
+    window = tk.Tk()
+
+    window.rowconfigure(0, minsize=50, weight=1)
+    window.columnconfigure([0, 1, 2], minsize=50, weight=1)
+
+    btn_decrease = tk.Button(master=window, text="-", command=decrease)
+    btn_decrease.grid(row=0, column=0, sticky="nsew")
+
+    lbl_value = tk.Label(master=window, text="0")
+    lbl_value.grid(row=0, column=1)
+
+    btn_increase = tk.Button(master=window, text="+", command=increase)
+    btn_increase.grid(row=0, column=2, sticky="nsew")
+
+    window.mainloop()
+
+
+def dice_example():
+    def roll():
+        lbl_result["text"] = str(randint(1, 6))
+
+    window = tk.Tk()
+    window.columnconfigure(0, minsize=150)
+    window.rowconfigure([0, 1], minsize=50)
+
+    btn_roll = tk.Button(text="Roll", command=roll)
+    lbl_result = tk.Label()
+
+    btn_roll.grid(row=0, column=0, sticky="nsew")
+    lbl_result.grid(row=1, column=0)
+
+    window.mainloop()
+
+
 def canvas():
-    l = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
     n = 100  # this is the length of the list l
-    lngt = 800 // n  # this is the dimension of the squares that I want
+    lng = 1000 // n  # this is the dimension of the squares that I want
 
     fen = tk.Tk()
     fen.geometry("1200x800")
 
-    # I would like to create a table of 4 rows on canvas
-    # each row should contain 4 squares
-    can = tk.Canvas(fen, width=450, height=400, bg="lightblue")
+    can = tk.Canvas(fen, width=1200, height=1200, bg="lightblue")
     can.pack(side=tk.LEFT)
 
-    for i in range(n):
-        y = i * lngt
-        for j in range(n):
-            x = j * lngt
-            can.create_rectangle(x, y, x + lngt, y + lngt, fill="red")
+    button = tk.Button(text="Start Drawing")
+    button.pack()
 
-    f = tk.Frame(fen, width=150, height=400, bg="lightcoral")
-    f.pack(side=tk.LEFT)
+    for i in range(n):
+        y = i * lng
+        for j in range(n):
+            x = j * lng
+            can.create_rectangle(x, y, x + lng, y + lng, fill="blue")
+
+    def start_drawing(event):
+        for z in range(10):
+            sleep(1 / 10)
+            rnd_x = randint(0, n-1) * lng
+            rnd_y = randint(0, n-1) * lng
+            can.create_rectangle(rnd_x, rnd_y, rnd_x + lng, rnd_y + lng, fill="red")
+            can.update()
+
+    fen.bind("<Key>", start_drawing)
+    button.bind("<Button-1>", start_drawing)
 
     fen.mainloop()
 
 
-canvas()
+dice_example()
