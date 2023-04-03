@@ -30,23 +30,26 @@ class GameUI:
     def __init__(self):
         self.size = 100
 
-    def paint_canvas(self, can, data_array):
+    def paint_canvas(self, fr, data_array):
+        new_can = tk.Canvas(fr, width=1000, height=1000, bg="lightblue")
         n = self.size
         lng = 1000 / n
         for i in range(n):
             y = i * lng
             for j in range(n):
                 x = j * lng
-                can.create_rectangle(x, y, x + lng, y + lng, fill=get_color(data_array[i][j]))
+                new_can.create_rectangle(x, y, x + lng, y + lng, fill=get_color(data_array[i][j]))
+        return new_can
 
     def draw_ui(self, init_size, run_check, run_simulation, ask_next_result):
         self.size = init_size
         max_number_of_tribe = 1
         window = tk.Tk()
-        can = tk.Canvas(window, width=1000, height=1000, bg="lightblue")
-        can.pack(side=tk.LEFT)
+        frame_can = tk.Frame(master=window, bg="white")
+        frame_can.pack(side=tk.LEFT)
 
-        self.paint_canvas(can, empty_data_for_array(self.size))
+        can = self.paint_canvas(frame_can, empty_data_for_array(self.size))
+        can.pack(side=tk.LEFT)
 
         frame = tk.Frame(master=window, relief=tk.RAISED, borderwidth=5, bg="lightgreen")
         frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -95,7 +98,9 @@ class GameUI:
                 sleep(1)
                 if run_check():
                     result = ask_next_result()
-                    self.paint_canvas(can, result)
+                    cann = self.paint_canvas(frame_can, result)
+                    frame_can.winfo_children()[0].destroy()
+                    cann.pack()
                 else:
                     print('End of Simulation')
                     break
