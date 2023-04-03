@@ -1,24 +1,52 @@
 import tkinter as tk
+from threading import Thread
 from time import sleep
+
+
+def get_color(num):
+    if num == 0:
+        return "blue"
+    elif num == 1:
+        return "red"
+    elif num == 2:
+        return "yellow"
+    elif num == 3:
+        return "black"
+    elif num == 4:
+        return "green"
+
+
+def empty_data_for_array(n):
+    my_array = []
+    for i in range(n):
+        my_row = []
+        for j in range(n):
+            my_row.append(0)
+        my_array.append(my_row)
+    return my_array
 
 
 class GameUI:
     def __init__(self):
         self.size = 100
 
-    def draw_ui(self, init_size, run_check, run_simulation, ask_next_result):
-        self.size = init_size
-        max_number_of_tribe = 1
+    def paint_canvas(self, can, data_array):
         n = self.size
         lng = 1000 / n
-        window = tk.Tk()
-        can = tk.Canvas(window, width=1000, height=1000, bg="lightblue")
-        can.pack(side=tk.LEFT)
         for i in range(n):
             y = i * lng
             for j in range(n):
                 x = j * lng
-                can.create_rectangle(x, y, x + lng, y + lng, fill="blue")
+                can.create_rectangle(x, y, x + lng, y + lng, fill=get_color(data_array[i][j]))
+
+    def draw_ui(self, init_size, run_check, run_simulation, ask_next_result):
+        self.size = init_size
+        max_number_of_tribe = 1
+        window = tk.Tk()
+        can = tk.Canvas(window, width=1000, height=1000, bg="lightblue")
+        can.pack(side=tk.LEFT)
+
+        self.paint_canvas(can, empty_data_for_array(self.size))
 
         frame = tk.Frame(master=window, relief=tk.RAISED, borderwidth=5, bg="lightgreen")
         frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -53,17 +81,23 @@ class GameUI:
 
         def start_simulation(event):
             if not run_check():
-                params = []
+                params = {'size': self.size}
                 run_simulation(params)
                 print("Simulation started")
+                thread_brain_follower = Thread(target=follow_brain)
+                thread_brain_follower.start()
             else:
                 print("Simulation has been already started")
                 return
+
+        def follow_brain():
             while True:
                 sleep(1)
                 if run_check():
                     result = ask_next_result()
+                    self.paint_canvas(can, result)
                 else:
+                    print('End of Simulation')
                     break
 
         button = tk.Button(master=frame, borderwidth=5, text="Start Simulation", bg="red")
