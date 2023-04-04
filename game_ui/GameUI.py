@@ -41,7 +41,7 @@ class GameUI:
                 new_can.create_rectangle(x, y, x + lng, y + lng, fill=get_color(data_array[i][j]))
         return new_can
 
-    def draw_ui(self, init_size, run_check, run_simulation, ask_next_result):
+    def draw_ui(self, init_size, run_check, run_simulation, ask_next_result, stop_simulation):
         self.size = init_size
         max_number_of_tribe = 1
         window = tk.Tk()
@@ -84,6 +84,9 @@ class GameUI:
 
         def start_simulation(event):
             if not run_check():
+                cann = self.paint_canvas(frame_can, empty_data_for_array(self.size))
+                frame_can.winfo_children()[0].destroy()
+                cann.pack()
                 params = {'size': self.size}
                 run_simulation(params)
                 print("Simulation started")
@@ -92,6 +95,9 @@ class GameUI:
             else:
                 print("Simulation has been already started")
                 return
+
+        def ask_stop_simulation(event):
+            stop_simulation()
 
         def follow_brain():
             while True:
@@ -108,5 +114,9 @@ class GameUI:
         button = tk.Button(master=frame, borderwidth=5, text="Start Simulation", bg="red")
         button.pack(expand=False)
         button.bind("<Button-1>", start_simulation)
+
+        button_stop = tk.Button(master=frame, borderwidth=5, text="Stop Simulation", bg="pink")
+        button_stop.pack(expand=False)
+        button_stop.bind("<Button-1>", ask_stop_simulation)
 
         window.mainloop()

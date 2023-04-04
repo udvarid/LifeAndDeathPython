@@ -15,6 +15,10 @@ class DummyBrain:
         self.size = params.get('size')
         print(f"Starting Simulation, size is {self.size}")
 
+    def stop_simulation(self):
+        self.running = False
+        print("Stopping simulation")
+
     def ask_next_result(self):
         print('Giving result')
         result = self.draw_random_data()

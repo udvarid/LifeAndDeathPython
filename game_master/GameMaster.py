@@ -9,5 +9,6 @@ class GameMaster:
             self.init_size,
             self.brain.run_check,
             self.brain.run_simulation,
-            self.brain.ask_next_result
+            self.brain.ask_next_result,
+            self.brain.stop_simulation
         )
