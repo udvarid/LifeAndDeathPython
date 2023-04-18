@@ -29,6 +29,7 @@ def empty_data_for_array(n):
 class GameUI:
     def __init__(self):
         self.size = 100
+        self.players = 1
 
     def paint_canvas(self, fr, data_array):
         new_can = tk.Canvas(fr, width=1000, height=1000, bg="lightblue")
@@ -43,7 +44,7 @@ class GameUI:
 
     def draw_ui(self, init_size, run_check, run_simulation, ask_next_result, stop_simulation):
         self.size = init_size
-        max_number_of_tribe = 1
+        max_number_of_tribe = 4
         window = tk.Tk()
         frame_can = tk.Frame(master=window, bg="white")
         frame_can.pack(side=tk.LEFT)
@@ -60,11 +61,13 @@ class GameUI:
             value = int(lbl_value["text"])
             if value < max_number_of_tribe:
                 lbl_value["text"] = f"{value + 1}"
+                self.players = value + 1
 
         def decrease():
             value = int(lbl_value["text"])
             if value > 1:
                 lbl_value["text"] = f"{value - 1}"
+                self.players = value + 1
 
         frame_counter = tk.Frame(master=frame, relief=tk.GROOVE, borderwidth=5, bg="lightyellow")
         frame_counter.rowconfigure(1, minsize=50, weight=1)
@@ -87,7 +90,11 @@ class GameUI:
                 cann = self.paint_canvas(frame_can, empty_data_for_array(self.size))
                 frame_can.winfo_children()[0].destroy()
                 cann.pack()
-                params = {'size': self.size}
+                params = {
+                    'size': self.size,
+                    'players': self.players,
+                    'init_cells': 20
+                }
                 run_simulation(params)
                 print("Simulation started")
                 thread_brain_follower = Thread(target=follow_brain)
