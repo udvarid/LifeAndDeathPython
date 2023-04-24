@@ -1,6 +1,5 @@
 import tkinter as tk
 from threading import Thread
-from time import sleep
 
 
 def get_color(num):
@@ -93,7 +92,7 @@ class GameUI:
                 params = {
                     'size': self.size,
                     'players': self.players,
-                    'init_cells': 20
+                    'init_cells': 50
                 }
                 run_simulation(params)
                 print("Simulation started")
@@ -108,7 +107,6 @@ class GameUI:
 
         def follow_brain():
             while True:
-                sleep(1)
                 if run_check():
                     result = ask_next_result()
                     cann = self.paint_canvas(frame_can, result)

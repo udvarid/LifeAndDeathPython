@@ -16,6 +16,7 @@ class Cell:
     def __hash__(self) -> int:
         return hash((self.x, self.y, self.value))
 
+
 class GameOfLifeBrain:
 
     def __init__(self):
@@ -24,17 +25,20 @@ class GameOfLifeBrain:
         self.players = 1
         self.init_cells = 10
         self.universe = set()
+        self.firstRound = True
 
     def run_check(self):
         return self.running
 
     def run_simulation(self, params):
         self.running = True
+        self.firstRound = True
         self.size = params.get('size', 50)
         self.players = params.get('players', 1)
         self.init_cells = params.get('init_cells', 10)
         print(
-            f"Starting Simulation, size is {self.size}, number of players is {self.players}, init cells is {self.init_cells}")
+            f"Starting Simulation, size is {self.size}, "
+            f"number of players is {self.players}, init cells is {self.init_cells}")
         self.place_init_cells()
 
     def stop_simulation(self):
@@ -79,8 +83,14 @@ class GameOfLifeBrain:
         cells_to_calculate = set()
         cells_to_calculate.update(final_empty_neighbour_cells)
         cells_to_calculate.update(self.universe)
+        if self.firstRound:
+            next_version = self.universe
+            self.firstRound = False
+        else:
+            next_version = get_next_version(cells_to_calculate)
+        self.universe = next_version
         my_array = self.get_empty_array()
-        for cell in self.universe:
+        for cell in next_version:
             my_array[int(cell.x)][int(cell.y)] = int(cell.value)
         return my_array
 
@@ -113,3 +123,40 @@ class GameOfLifeBrain:
                 my_row.append(0)
             my_array.append(my_row)
         return my_array
+
+
+def get_next_version(cells):
+    final_cells = set()
+    dead_cells = list(filter(lambda cell: cell.value == 0, cells))
+    living_cells = list(filter(lambda cell: cell.value != 0, cells))
+    for dead_cell in dead_cells:
+        neighbouring_living_cells_next_to_dead_cell = get_neighbouring_living_cells(living_cells, dead_cell)
+        if len(neighbouring_living_cells_next_to_dead_cell) == 3 and cells_from_same_tribe(
+                neighbouring_living_cells_next_to_dead_cell):
+            dead_cell.value = list(neighbouring_living_cells_next_to_dead_cell)[0].value
+            final_cells.add(dead_cell)
+
+    for living_cell in living_cells:
+        neighbouring_living_cells = get_neighbouring_living_cells(living_cells, living_cell)
+        if 2 <= len(neighbouring_living_cells) <= 3:
+            final_cells.add(living_cell)
+    return final_cells
+
+
+def cells_from_same_tribe(cells):
+    if len(cells) > 0:
+        tribe = list(cells)[0].value
+        for cell in cells:
+            if cell.value != tribe:
+                return False
+    return True
+
+
+def get_neighbouring_living_cells(cells, living_cell):
+    neighbouring_living_cells = set()
+    for cell in cells:
+        if cell != living_cell and \
+                abs(cell.x - living_cell.x) <= 1 and \
+                abs(cell.y - living_cell.y) <= 1:
+            neighbouring_living_cells.add(cell)
+    return neighbouring_living_cells
