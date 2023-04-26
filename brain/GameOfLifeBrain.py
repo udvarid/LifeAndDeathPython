@@ -1,3 +1,4 @@
+from copy import deepcopy
 from random import randint
 
 
@@ -26,6 +27,7 @@ class GameOfLifeBrain:
         self.init_cells = 10
         self.universe = set()
         self.firstRound = True
+        self.init_array = []
 
     def run_check(self):
         return self.running
@@ -36,6 +38,7 @@ class GameOfLifeBrain:
         self.size = params.get('size', 50)
         self.players = params.get('players', 1)
         self.init_cells = params.get('init_cells', 10)
+        self.init_array = self.get_empty_array()
         print(
             f"Starting Simulation, size is {self.size}, "
             f"number of players is {self.players}, init cells is {self.init_cells}")
@@ -89,7 +92,7 @@ class GameOfLifeBrain:
         else:
             next_version = get_next_version(cells_to_calculate)
         self.universe = next_version
-        my_array = self.get_empty_array()
+        my_array = deepcopy(self.init_array)
         for cell in next_version:
             my_array[int(cell.x)][int(cell.y)] = int(cell.value)
         return my_array

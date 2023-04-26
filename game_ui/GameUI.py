@@ -66,7 +66,7 @@ class GameUI:
             value = int(lbl_value["text"])
             if value > 1:
                 lbl_value["text"] = f"{value - 1}"
-                self.players = value + 1
+                self.players = value - 1
 
         frame_counter = tk.Frame(master=frame, relief=tk.GROOVE, borderwidth=5, bg="lightyellow")
         frame_counter.rowconfigure(1, minsize=50, weight=1)
