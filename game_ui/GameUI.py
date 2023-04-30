@@ -29,17 +29,18 @@ class GameUI:
     def __init__(self):
         self.size = 100
         self.players = 1
+        self.canvas = None
 
     def paint_canvas(self, fr, data_array):
-        new_can = tk.Canvas(fr, width=1000, height=1000, bg="lightblue")
+        if self.canvas is None:
+            self.canvas = tk.Canvas(fr, width=1000, height=1000, bg="lightblue")
         n = self.size
         lng = 1000 / n
         for i in range(n):
             y = i * lng
             for j in range(n):
                 x = j * lng
-                new_can.create_rectangle(x, y, x + lng, y + lng, fill=get_color(data_array[i][j]))
-        return new_can
+                self.canvas.create_rectangle(x, y, x + lng, y + lng, fill=get_color(data_array[i][j]))
 
     def draw_ui(self, init_size, run_check, run_simulation, ask_next_result, stop_simulation):
         self.size = init_size
@@ -48,8 +49,8 @@ class GameUI:
         frame_can = tk.Frame(master=window, bg="white")
         frame_can.pack(side=tk.LEFT)
 
-        can = self.paint_canvas(frame_can, empty_data_for_array(self.size))
-        can.pack(side=tk.LEFT)
+        self.paint_canvas(frame_can, empty_data_for_array(self.size))
+        self.canvas.pack(side=tk.LEFT)
 
         frame = tk.Frame(master=window, relief=tk.RAISED, borderwidth=5, bg="lightgreen")
         frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -86,9 +87,8 @@ class GameUI:
 
         def start_simulation(event):
             if not run_check():
-                cann = self.paint_canvas(frame_can, empty_data_for_array(self.size))
-                frame_can.winfo_children()[0].destroy()
-                cann.pack()
+                self.paint_canvas(frame_can, empty_data_for_array(self.size))
+                self.canvas.update()
                 params = {
                     'size': self.size,
                     'players': self.players,
@@ -96,8 +96,10 @@ class GameUI:
                 }
                 run_simulation(params)
                 print("Simulation started")
-                thread_brain_follower = Thread(target=follow_brain)
-                thread_brain_follower.start()
+                #Ha külön szálon futtatom, akkor könnyebb közben a grafikonos interface-t kezelni, de a canvas update lassú
+                #thread_brain_follower = Thread(target=follow_brain)
+                #thread_brain_follower.start()
+                follow_brain()
             else:
                 print("Simulation has been already started")
                 return
@@ -109,9 +111,11 @@ class GameUI:
             while True:
                 if run_check():
                     result = ask_next_result()
-                    cann = self.paint_canvas(frame_can, result)
-                    frame_can.winfo_children()[0].destroy()
-                    cann.pack()
+                    self.paint_canvas(frame_can, result)
+                    #ha külön thread-en futna, akkor a canvas-t külön létre kellene hozni, a régit törölni és itt hozzácsatolni, de ekkor van egy kis lag
+                    #frame_can.winfo_children()[0].destroy()
+                    #cann.pack()
+                    self.canvas.update()
                 else:
                     print('End of Simulation')
                     break
